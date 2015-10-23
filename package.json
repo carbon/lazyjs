@@ -1,12 +1,12 @@
 {
-  "name": "connector",
+  "name": "lazyjs",
   "version": "1.0.0",
-  "main": "lib/connector.js",
+  "main": "lib/lazyjs.js",
   "author": "Jason Nelson",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/carbon/connector.git"
+    "url": "git://github.com/carbon/lazyjs.git"
   },
-  "homepage": "https://github.com/carbon/connector"
+  "homepage": "https://github.com/carbon/lazyjs"
 }
