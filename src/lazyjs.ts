@@ -2,13 +2,14 @@ module Carbon {
   export class LazyLoader {
     lazyEls: NodeListOf<HTMLElement>;
     fold: number;
-
+    
     constructor() {
       window.addEventListener('scroll', this.check.bind(this));
     }
 
     setup() {
       this.lazyEls = <NodeListOf<HTMLElement>>document.querySelectorAll('.lazy');
+      
       this.check();
     }
 
@@ -38,6 +39,8 @@ module Carbon {
 
     load(el: HTMLElement) {
       var src = el.getAttribute('data-src');
+      var srcset = el.getAttribute('data-srcset');
+      
       if (!src) {
         throw new Error('[Carbon.LazyLoader] No source found for element');
       }
@@ -45,8 +48,16 @@ module Carbon {
       var img = new Image();
 
       img.onload = function() {
-        el.style.backgroundImage = "url('" + src + "')";
-        el.classList.add('loaded');
+        
+         if (el.tagName == 'DIV') {
+          el.style.backgroundImage = "url('" + src + "')";
+          el.classList.add('loaded');
+         }
+         else if (el.tagName == 'IMG') {
+          el.src = src;
+         
+          if (srcset) el.srcset = srcset;
+         }
       }
 
       img.src = src;
