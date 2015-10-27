@@ -47,16 +47,15 @@ module Carbon {
 
       var img = new Image();
 
-      img.onload = function() {
-        
-         if (el.tagName == 'DIV') {
-          el.style.backgroundImage = "url('" + src + "')";
-          el.classList.add('loaded');
-         }
-         else if (el.tagName == 'IMG') {
+      img.onload = () => {
+         if (el.tagName == 'IMG') {
           el.src = src;
          
           if (srcset) el.srcset = srcset;
+         }
+         else {
+            el.style.backgroundImage = "url('" + src + "')";
+            el.classList.add('loaded');
          }
       }
 
