@@ -23,9 +23,9 @@ module Carbon {
 
         if (!el.classList.contains('lazy')) continue;
 
-        var box = el.getBoundingClientRect();
+        let box = el.getBoundingClientRect();
 
-        if(box.top <= this.fold + 500) {
+        if (box.top <= this.fold + 500) {
           this.load(el);
 
           if ((i + 2) < this.lazyEls.length) {
@@ -37,29 +37,35 @@ module Carbon {
       }
     }
 
-    load(el: HTMLElement) {
-      var src = el.getAttribute('data-src');
-      var srcset = el.getAttribute('data-srcset');
+    load(el: HTMLElement | HTMLImageElement) {
+      var src = el.dataset['src'];
+      var srcset = el.dataset['srcset'];
       
       if (!src) {
         throw new Error('[Carbon.LazyLoader] No source found for element');
       }
-
-      var img = new Image();
-
-      img.onload = () => {
-         if (el.tagName == 'IMG') {
+      
+      if (el.tagName == 'IMG') {
+        el.onload = () => {
           el.src = src;
          
           if (srcset) el.srcset = srcset;
-         }
-         else {
-            el.style.backgroundImage = "url('" + src + "')";
-            el.classList.add('loaded');
-         }
+          
+          el.classList.add('loaded'); 
+        }
+        
+        el.src = src;
       }
-
-      img.src = src;
+      else {
+        var img = new Image();
+  
+        img.onload = () => {         
+          el.style.backgroundImage = "url('" + src + "')";
+          el.classList.add('loaded');
+        }
+      
+        img.src = src;   
+      }
 
       el.classList.remove('lazy');
     }
