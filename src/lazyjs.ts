@@ -45,26 +45,21 @@ module Carbon {
         throw new Error('[Carbon.LazyLoader] No source found for element');
       }
       
+      var img = new Image();
+  
+      img.onload = () => { 
+        el.classList.add('loaded');
+      }
+      
+      img.src = src;
+      
       if (el.tagName == 'IMG') {
-        el.onload = () => {
-          el.src = src;
-         
-          if (srcset) el.srcset = srcset;
-          
-          el.classList.add('loaded'); 
-        }
-        
         el.src = src;
+         
+        if (srcset) el.srcset = srcset;
       }
       else {
-        var img = new Image();
-  
-        img.onload = () => {         
-          el.style.backgroundImage = "url('" + src + "')";
-          el.classList.add('loaded');
-        }
-      
-        img.src = src;   
+        el.style.backgroundImage = "url('" + src + "')";
       }
 
       el.classList.remove('lazy');
