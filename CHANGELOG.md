@@ -1,3 +1,6 @@
+# 1.2.0
+- Support for objects
+
 # 1.1.1
 - Support for <carbon-image /> elements
 

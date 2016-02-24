@@ -4,7 +4,7 @@ module Carbon {
     fold: number;
     
     constructor() {
-      window.addEventListener('scroll', this.check.bind(this));
+      window.addEventListener('scroll', this.check.bind(this), false);
     }
 
     setup() {
@@ -24,44 +24,50 @@ module Carbon {
         if (!el.classList.contains('lazy')) continue;
 
         let box = el.getBoundingClientRect();
-
+ 
         if (box.top <= this.fold + 500) {
-          this.load(el);
+          this.load(<any>el);
 
           if ((i + 2) < this.lazyEls.length) {
             var nextEl = this.lazyEls[i + 1];
 
-            this.load(nextEl);
+            this.load(<any>nextEl);
           }
         }
       }
     }
 
-    load(el: HTMLElement | HTMLImageElement) {
-      var src = el.dataset['src'];
-      var srcset = el.dataset['srcset'];
-      
-      if (!src) {
-        throw new Error('[Carbon.LazyLoader] No source found for element');
-      }
-      
-      var img = new Image();
-  
-      img.onload = () => { 
-        el.classList.add('loaded');
-      }
-      
-      img.src = src;
-      
-      if (el.tagName == 'IMG') {
+    load(el: HTMLObjectElement | HTMLImageElement) {      
+      if (el instanceof HTMLImageElement) {
+        let { src, srcset } = el.dataset;
+        
+        if (!src) throw new Error('[Lazy] Missing data-src');
+        
+        var img = new Image();
+    
+        img.onload = () => { 
+          el.classList.add('loaded');
+        }
+        
+        img.src = src;
+        
+        // NOTE: Chrome does not loop gif's correctly when an onload event is attached on a HTMLImageElement
+        
         el.src = src;
-         
-        if (srcset) el.srcset = srcset;
+        
+        if (el.dataset['srcset']) { 
+          el.srcset = srcset;
+        }
+      }
+      else if (el instanceof HTMLObjectElement) {
+        if (!el.dataset['data']) throw new Error('[Lazy] Missing data-data');
+        
+        el.data = el.dataset['data']; 
       }
       else {
-        el.style.backgroundImage = "url('" + src + "')";
+        console.log('unexpected element type', el);
       }
-
+      
       el.classList.remove('lazy');
     }
   }
