@@ -37,7 +37,7 @@ module Carbon {
       }
     }
 
-    load(el: HTMLObjectElement | HTMLImageElement) {      
+    load(el: HTMLImageElement) {      
       if (el instanceof HTMLImageElement) {
         let { src, srcset } = el.dataset;
         
@@ -58,11 +58,6 @@ module Carbon {
         if (el.dataset['srcset']) { 
           el.srcset = srcset;
         }
-      }
-      else if (el instanceof HTMLObjectElement) {
-        if (!el.dataset['data']) throw new Error('[Lazy] Missing data-data');
-        
-        el.data = el.dataset['data']; 
       }
       else {
         console.log('unexpected element type', el);
