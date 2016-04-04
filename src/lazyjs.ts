@@ -1,6 +1,6 @@
 module Carbon {
   export class LazyLoader {
-    lazyEls: NodeListOf<HTMLElement>;
+    lazyEls: NodeListOf<HTMLImageElement>;
     fold: number;
     
     constructor() {
@@ -8,7 +8,7 @@ module Carbon {
     }
 
     setup() {
-      this.lazyEls = <NodeListOf<HTMLElement>>document.querySelectorAll('.lazy');
+      this.lazyEls = <NodeListOf<HTMLImageElement>>document.querySelectorAll('.lazy');
       
       this.check();
     }
@@ -26,7 +26,7 @@ module Carbon {
         let box = el.getBoundingClientRect();
  
         if (box.top <= this.fold + 500) {
-          this.load(<any>el);
+          this.load(el);
 
           if ((i + 2) < this.lazyEls.length) {
             var nextEl = this.lazyEls[i + 1];
@@ -43,21 +43,29 @@ module Carbon {
         
         if (!src) throw new Error('[Lazy] Missing data-src');
         
-        var img = new Image();
-    
+        let img: HTMLImageElement;
+        
+        // Chrome does not loop gif's correctly when an onload event
+        // is attached on a HTMLImageElement
+
+        if (src.indexOf('.gif') > -1) {         
+          img = new Image(); 
+        }
+        else {
+          img = el;
+        }
+        
         img.onload = () => { 
           el.classList.add('loaded');
         }
         
         img.src = src;
         
-        // NOTE: Chrome does not loop gif's correctly when an onload event is attached on a HTMLImageElement
-        
-        el.src = src;
-        
         if (el.dataset['srcset']) { 
           el.srcset = srcset;
         }
+        
+        el.src = src;
       }
       else {
         console.log('unexpected element type', el);
