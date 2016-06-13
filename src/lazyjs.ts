@@ -4,7 +4,10 @@ module Carbon {
     fold: number;
     
     constructor() {
-      window.addEventListener('scroll', this.check.bind(this), false);
+      window.addEventListener('scroll', this.check.bind(this), {
+        capture: false,
+        passive: true
+      });
     }
 
     setup() {
