@@ -1,19 +1,54 @@
 module Carbon {
   export class LazyLoader {
-    lazyEls: NodeListOf<HTMLImageElement>;
+    lazyEls: HTMLImageElement[];
     fold: number;
-    
-    constructor() {
-      window.addEventListener('scroll', this.check.bind(this), {
-        capture: false,
-        passive: true
-      });
+    observer: IntersectionObserver;
+  
+    constructor(options: any = { }) {
+  
+      if ('IntersectionObserver' in window) {
+  
+
+        this.observer = new IntersectionObserver(entries => {
+          for (var entry of entries) {
+
+            if (entry.intersectionRatio > 0) { 
+              this.load(entry.target);
+            
+              var index = this.lazyEls.indexOf(<HTMLImageElement>entry.target);
+
+              // load the next one
+              if (this.lazyEls.length > index + 2) {
+                this.load(this.lazyEls[index + 1]);
+
+              }              
+            }
+
+          }
+        }, {
+            threshold: 0.1,
+            rootMargin: options.margin || '50px 0px'
+        });
+      }
+      else {
+        window.addEventListener('scroll', this.check.bind(this), {
+          capture: false,
+          passive: true
+        });
+      }
     }
 
     setup() {
-      this.lazyEls = <NodeListOf<HTMLImageElement>>document.querySelectorAll('.lazy');
-      
-      this.check();
+      this.lazyEls = Array.from(<NodeListOf<HTMLImageElement>>document.querySelectorAll('img.lazy'));
+    
+      if (this.observer) {
+        for (var el of this.lazyEls) {
+          this.observer.observe(el);
+        }
+      }
+      else {
+        this.check();
+      }
     }
 
     check() {
@@ -41,39 +76,36 @@ module Carbon {
     }
 
     load(el: HTMLImageElement) {      
-      if (el instanceof HTMLImageElement) {
-        let { src, srcset } = el.dataset;
-        
-        if (!src) throw new Error('[Lazy] Missing data-src');
-        
-        let img: HTMLImageElement;
-        
-        // Chrome does not loop gif's correctly when an onload event
-        // is attached on a HTMLImageElement
+      let { src, srcset } = el.dataset;
+      
+      if (!src) throw new Error('[Lazy] Missing data-src');
+      
+      let img: HTMLImageElement;
+      
+      // Chrome does not loop gif's correctly when an onload event
+      // is attached on a HTMLImageElement
 
-        if (src.indexOf('.gif') > -1) {         
-          img = new Image(); 
-        }
-        else {
-          img = el;
-        }
-        
-        img.onload = () => { 
-          el.classList.add('loaded');
-        }
-        
-        img.src = src;
-        
-        if (el.dataset['srcset']) { 
-          el.srcset = srcset;
-        }
-        
-        el.src = src;
+      if (src.indexOf('.gif') > -1) {         
+        img = new Image(); 
       }
       else {
-        console.log('unexpected element type', el);
+        img = el;
       }
       
+      el.classList.add('loading');
+      
+      img.onload = () => { 
+        el.classList.add('loaded');
+      }
+      
+      img.src = src;
+      
+      if (el.dataset['srcset']) { 
+        el.srcset = srcset;
+      }
+      
+      el.src = src;
+
       el.classList.remove('lazy');
     }
   }

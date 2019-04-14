@@ -5,6 +5,7 @@
     "removeComments": true,
     "watch": false,
     "sourceMap": false,
+    "lib": [ "dom", "es5", "es6" ],
     "outDir": "lib/"
   },
   "files": [
