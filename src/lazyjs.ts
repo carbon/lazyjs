@@ -1,85 +1,59 @@
 module Carbon {
   export class LazyLoader {
-    lazyEls: HTMLImageElement[];
-    fold: number;
+    elements: NodeListOf<HTMLImageElement>;
     observer: IntersectionObserver;
   
     constructor(options: any = { }) {
-  
-      if ('IntersectionObserver' in window) {
-  
+      if (!('IntersectionObserver' in window)) {
+        throw new Error('Missing IntersectionObserver API');
+      }
 
-        this.observer = new IntersectionObserver(entries => {
-          for (var entry of entries) {
+      this.observer = new IntersectionObserver(entries => {
+        for (var entry of entries) {
 
-            if (entry.intersectionRatio > 0) { 
-              this.load(entry.target);
-            
-              var index = this.lazyEls.indexOf(<HTMLImageElement>entry.target);
+          if (entry.intersectionRatio > 0) { 
+            this.load(<HTMLImageElement>entry.target);
+          
+            var index = this.indexOf(<HTMLImageElement>entry.target);
 
-              // load the next one
-              if (this.lazyEls.length > index + 2) {
-                this.load(this.lazyEls[index + 1]);
+            // load ahead 1
+            if (this.elements.length > index + 2) {
+              this.load(this.elements[index + 1]);
 
-              }              
-            }
-
+            }              
           }
-        }, {
-            threshold: 0.1,
-            rootMargin: options.margin || '50px 0px'
-        });
+        }
+      }, {
+          threshold: 0.01,
+          rootMargin: options.margin || '50px 0px'
+      });     
+    }
+
+    indexOf(element: HTMLElement) {
+      for (var i = 0; i < this.elements.length; i++) { 
+        if (this.elements[i] === element) {
+          return i;
+        }
       }
-      else {
-        window.addEventListener('scroll', this.check.bind(this), {
-          capture: false,
-          passive: true
-        });
-      }
+
+      return -1;
     }
 
     setup() {
-      this.lazyEls = Array.from(<NodeListOf<HTMLImageElement>>document.querySelectorAll('img.lazy'));
+      this.elements = document.querySelectorAll('img.lazy');
     
-      if (this.observer) {
-        for (var el of this.lazyEls) {
-          this.observer.observe(el);
-        }
-      }
-      else {
-        this.check();
-      }
-    }
-
-    check() {
-      if (!this.lazyEls) return;
-
-      this.fold = window.innerHeight;
-
-      for (var i = 0; i < this.lazyEls.length; i++) {
-        var el = this.lazyEls[i];
-
-        if (!el.classList.contains('lazy')) continue;
-
-        let box = el.getBoundingClientRect();
- 
-        if (box.top <= this.fold + 500) {
-          this.load(el);
-
-          if ((i + 2) < this.lazyEls.length) {
-            var nextEl = this.lazyEls[i + 1];
-
-            this.load(<any>nextEl);
-          }
-        }
+      for (var i = 0; i < this.elements.length; i++) {
+        this.observer.observe(this.elements[i]);
       }
     }
 
     load(el: HTMLImageElement) {      
       let { src, srcset } = el.dataset;
       
-      if (!src) throw new Error('[Lazy] Missing data-src');
-      
+      if (!src) {
+        throw new Error('[Lazy] Missing data-src');
+      }
+
       let img: HTMLImageElement;
       
       // Chrome does not loop gif's correctly when an onload event
@@ -100,7 +74,7 @@ module Carbon {
       
       img.src = src;
       
-      if (el.dataset['srcset']) { 
+      if (srcset) { 
         el.srcset = srcset;
       }
       
