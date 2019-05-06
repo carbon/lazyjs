@@ -57,6 +57,10 @@ module Carbon {
         throw new Error('[Lazy] Missing data-src');
       }
 
+      if (!el.classList.contains('lazy')) {
+        return;
+      }
+
       let img: HTMLImageElement;
       
       // Chrome does not loop gif's correctly when an onload event
