@@ -16,16 +16,19 @@ module Carbon {
           
             var index = this.indexOf(<HTMLImageElement>entry.target);
 
-            // load ahead 1
+            // load ahead 2
             if (this.elements.length > index + 2) {
               this.load(this.elements[index + 1]);
+            }
 
-            }              
+            if (this.elements.length > index + 3) {
+              this.load(this.elements[index + 2]);
+            }           
           }
         }
       }, {
           threshold: 0.01,
-          rootMargin: options.margin || '50px 0px'
+          rootMargin: options.margin || '200px 0px'
       });     
     }
 
