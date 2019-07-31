@@ -91,6 +91,12 @@ module Carbon {
       
       el.src = src;
 
+      if (el.tagName == 'video' && el.hasAttribute('autoplay')) {
+        (<HTMLVideoElement>el).play();
+
+        // TODO: Pause once out of viewport
+      }
+
       el.classList.remove('lazy');
     }
   }
