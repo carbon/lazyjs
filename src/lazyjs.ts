@@ -1,6 +1,6 @@
 module Carbon {
   export class LazyLoader {
-    elements: NodeListOf<HTMLImageElement>;
+    elements: HTMLElement[];
     observer: IntersectionObserver;
   
     constructor(options: any = { }) {
@@ -12,9 +12,9 @@ module Carbon {
         for (var entry of entries) {
 
           if (entry.intersectionRatio > 0) { 
-            this.load(<HTMLImageElement>entry.target);
+            this.load(entry.target);
           
-            var index = this.indexOf(<HTMLImageElement>entry.target);
+            var index = this.indexOf(entry.target);
 
             // load ahead 2
             if (this.elements.length > index + 2) {
@@ -43,14 +43,14 @@ module Carbon {
     }
 
     setup() {
-      this.elements = document.querySelectorAll('img.lazy');
+      this.elements = Array.from(document.querySelectorAll('img.lazy, video.lazy'));
     
       for (var i = 0; i < this.elements.length; i++) {
         this.observer.observe(this.elements[i]);
       }
     }
 
-    load(el: HTMLImageElement) {      
+    load(el: HTMLVideoElement | HTMLImageElement) {      
       let { src, srcset } = el.dataset;
       
       if (!src) {
@@ -61,28 +61,32 @@ module Carbon {
         return;
       }
 
-      let img: HTMLImageElement;
-      
-      // Chrome does not loop gif's correctly when an onload event
-      // is attached on a HTMLImageElement
 
-      if (src.indexOf('.gif') > -1) {         
-        img = new Image(); 
+      if (el.tagName == 'IMG') {
+        let img: HTMLImageElement;
+
+        // Chrome does not loop gif's correctly when an onload event
+        // is attached on a HTMLImageElement
+
+        if (src.indexOf('.gif') > -1) {         
+          img = new Image(); 
+        }
+        else {
+          img = <HTMLImageElement>el;
+        }
+        
+        el.classList.add('loading');
+        
+        img.onload = () => { 
+          el.classList.remove('loading');
+          el.classList.add('loaded');
+        }
+
+        img.src = src;
       }
-      else {
-        img = el;
-      }
       
-      el.classList.add('loading');
-      
-      img.onload = () => { 
-        el.classList.add('loaded');
-      }
-      
-      img.src = src;
-      
-      if (srcset) { 
-        el.srcset = srcset;
+      if (srcset && el.tagName == 'IMG') { 
+        (<HTMLImageElement>el).srcset = srcset;
       }
       
       el.src = src;
