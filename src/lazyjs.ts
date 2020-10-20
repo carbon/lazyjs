@@ -8,28 +8,30 @@ module Carbon {
         throw new Error('Missing IntersectionObserver API');
       }
 
-      this.observer = new IntersectionObserver(entries => {
-        for (var entry of entries) {
-
-          if (entry.intersectionRatio > 0) { 
-            this.load(entry.target);
-          
-            var index = this.indexOf(entry.target);
-
-            // load ahead 2
-            if (this.elements.length > index + 2) {
-              this.load(this.elements[index + 1]);
-            }
-
-            if (this.elements.length > index + 3) {
-              this.load(this.elements[index + 2]);
-            }           
-          }
-        }
-      }, {
+      this.observer = new IntersectionObserver(this.callback.bind(this), {
           threshold: 0.01,
           rootMargin: options.margin || '200px 0px'
       });     
+    }
+
+    callback(entries: IntersectionObserverEntry[]) {
+      for (var entry of entries) {
+
+        if (entry.intersectionRatio > 0) { 
+          this.load(entry.target);
+        
+          var index = this.indexOf(entry.target);
+
+          // load ahead 2
+          if (this.elements.length > index + 2) {
+            this.load(this.elements[index + 1]);
+          }
+
+          if (this.elements.length > index + 3) {
+            this.load(this.elements[index + 2]);
+          }           
+        }
+      }
     }
 
     indexOf(element: HTMLElement) {
@@ -48,6 +50,15 @@ module Carbon {
       for (var i = 0; i < this.elements.length; i++) {
         this.observer.observe(this.elements[i]);
       }
+    }
+
+    add(el: HTMLVideoElement | HTMLImageElement) {
+      this.elements.push(el);
+      this.observer.observe(el);
+    }
+
+    remove(el: HTMLElement) {
+      this.observer.unobserve(el);
     }
 
     load(el: HTMLVideoElement | HTMLImageElement) {      
