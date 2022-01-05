@@ -4,10 +4,6 @@ module Carbon {
     observer: IntersectionObserver;
   
     constructor(options: any = { }) {
-      if (!('IntersectionObserver' in window)) {
-        throw new Error('Missing IntersectionObserver API');
-      }
-
       this.observer = new IntersectionObserver(this.callback.bind(this), {
           threshold: 0.01,
           rootMargin: options.margin || '200px 0px'
@@ -102,7 +98,7 @@ module Carbon {
       
       el.src = src;
 
-      if (el.tagName == 'video' && el.hasAttribute('autoplay')) {
+      if (el.tagName == 'VIDEO' && el.hasAttribute('autoplay')) {
         (<HTMLVideoElement>el).play();
 
         // TODO: Pause once out of viewport
