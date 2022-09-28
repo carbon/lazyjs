@@ -60,14 +60,13 @@ module Carbon {
     load(el: HTMLVideoElement | HTMLImageElement) {      
       let { src, srcset } = el.dataset;
       
-      if (!src) {
-        throw new Error('[Lazy] Missing data-src');
+      if (!src && !srcset) {
+        throw new Error('[Lazy] Missing data-src or data-srcset');
       }
 
       if (!el.classList.contains('lazy')) {
         return;
       }
-
 
       if (el.tagName == 'IMG') {
         let img: HTMLImageElement;
@@ -76,7 +75,8 @@ module Carbon {
         // is attached on a HTMLImageElement
 
         if (src.indexOf('.gif') > -1) {         
-          img = new Image(); 
+          img = new Image();
+          img.src = src;
         }
         else {
           img = <HTMLImageElement>el;
@@ -89,17 +89,21 @@ module Carbon {
           el.classList.add('loaded');
         }
 
-        img.src = src;
+        if (src) {
+          img.src = src;
+        }
+   
+        if (srcset) { 
+          img.srcset = srcset;
+        }
       }
-      
-      if (srcset && el.tagName == 'IMG') { 
-        (<HTMLImageElement>el).srcset = srcset;
-      }
-      
-      el.src = src;
 
-      if (el.tagName == 'VIDEO' && el.hasAttribute('autoplay')) {
-        (<HTMLVideoElement>el).play();
+      if (el.tagName == 'VIDEO') {
+        el.src = src;
+
+        if (el.hasAttribute('autoplay')) {
+          (<HTMLVideoElement>el).play();
+        }
 
         // TODO: Pause once out of viewport
       }
