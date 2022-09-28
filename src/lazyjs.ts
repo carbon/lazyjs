@@ -42,7 +42,7 @@ module Carbon {
 
     setup() {
       this.elements = Array.from(document.querySelectorAll('img.lazy, video.lazy'));
-    
+          
       for (var i = 0; i < this.elements.length; i++) {
         this.observer.observe(this.elements[i]);
       }
@@ -57,15 +57,15 @@ module Carbon {
       this.observer.unobserve(el);
     }
 
-    load(el: HTMLVideoElement | HTMLImageElement) {      
+    load(el: HTMLVideoElement | HTMLImageElement) {
+      if (!el.classList.contains('lazy')) {
+        return;
+      }
+
       let { src, srcset } = el.dataset;
       
       if (!src && !srcset) {
         throw new Error('[Lazy] Missing data-src or data-srcset');
-      }
-
-      if (!el.classList.contains('lazy')) {
-        return;
       }
 
       if (el.tagName == 'IMG') {
@@ -74,9 +74,9 @@ module Carbon {
         // Chrome does not loop gif's correctly when an onload event
         // is attached on a HTMLImageElement
 
-        if (src.indexOf('.gif') > -1) {         
+        if (src && src.indexOf('.gif') > -1) {
+          el.src = src;
           img = new Image();
-          img.src = src;
         }
         else {
           img = <HTMLImageElement>el;
